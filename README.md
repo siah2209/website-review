@@ -46,7 +46,7 @@ We conducted:
 - Hosting: GitHub Pages, Render, or Heroku
 
 ## Future Goals / Wishlist
-
+Would Love to fully implement this
 - Build out sentiment analysis integration
 - Create a clean, user-friendly UI
 - Allow users to edit/update reviews over time
