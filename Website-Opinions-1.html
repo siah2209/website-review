@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Website Evaluation Tool</title>
+    <div class="top-button-container">
+      
+        <div class="user-auth-box">
+          <p class="optional-note">Optional</p>
+            <label for="username">Username:</label>
+            <input type="text" id="username" name="username" placeholder="Enter username">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" placeholder="Enter email">
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password" placeholder="Enter password">
+            <div class="auth-buttons">
+              <button type="button" onclick="validateAndShowMessage('Sign Up')">Sign Up</button>
+              <button type="button" onclick="validateAndShowMessage('Log In')">Log In</button>
+            </div>
+        </div>
+        <a href="potential-reviews.html" id="viewReviewsBtn" target="_blank">View Other Reviews</a>
+    </div>
+    <style>
+        body {
+            background-color: #f5f5dc;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .top-button-container {
+            display: flex;
+            justify-content: flex-start; /* Align items to the left */
+            align-items: flex-start; /* Align items to the top */
+            margin-bottom: 20px;
+            margin-top: 20px;
+            margin-left: 40px;
+            margin-right: 40px;
+            gap: 5px; /* Add some gap between the user box and the button */
+            position: relative; 
+        }
+        .optional-note {
+        color: red;
+        font-weight: bold;
+        margin-bottom: 2px;
+        font-size: 16px;
+      }
+
+
+        .user-auth-box {
+            background-color: #e0d8c4;
+            padding: 10px; /* Reduced padding for smaller size */
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* Reduced gap for smaller size */
+            width: 250px; /* Increased width */
+           
+            position: absolute; /* Take it out of the normal flow */
+            top: 30px; /* Adjust this to control the vertical position */
+            left: 40px; /* Align with the left margin of the container */
+            z-index: 10; /* Ensure it's above other content if needed */
+        }
+
+        .user-auth-box label {
+            font-size: 14px; /* Smaller font size */
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 1px;
+        }
+
+
+        .user-auth-box input[type="text"],
+        .user-auth-box input[type="email"],
+        .user-auth-box input[type="password"] {
+            padding: 6px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+            font-size: 12px; 
+            box-sizing: border-box;
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+        }
+
+        .user-auth-box button {
+            background-color: #8b7355;
+            color: white;
+            border: none;
+            padding: 6px 10px; /* Smaller padding */
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px; /* Smaller font size */
+            transition: background-color 0.3s ease;
+        }
+
+        .user-auth-box button:hover {
+            background-color: #a88c65;
+        }
+
+        #viewReviewsBtn {
+            background-color: #8b7355;
+            color: white;
+            border: none;
+            padding: 10px 25px; /* Slightly smaller padding */
+            text-decoration: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px; /* Slightly smaller font size */
+            transition: background-color 0.3s ease;
+            margin-left: auto; /* Push it to the right */
+        }
+
+        #viewReviewsBtn:hover {
+            background-color: #a88c65;
+        }
+
+        .container {
+            max-width: 700px;
+            margin: 30px auto;
+            background-color: #fff;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin: 30px auto; /* This will now be relative to the body */
+        }
+
+        h2, h3 {
+            text-align: center;
+            color: #333;
+        }
+
+        label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        input[type="text"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+
+        .rating {
+            display: flex;
+            justify-content: center;
+            flex-direction: row-reverse;
+            margin-top: 10px;
+        }
+
+        .rating input {
+            display: none;
+        }
+
+        .rating label {
+            font-size: 2em;
+            color: #ccc;
+            cursor: pointer;
+            padding: 0 5px;
+            transition: color 0.2s;
+        }
+
+        .rating input:checked ~ label,
+        .rating label:hover,
+        .rating label:hover ~ label {
+            color: gold;
+        }
+
+        .rating-icons {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+            gap: 20px;
+        }
+
+        .rating-icons img {
+            width: 40px;
+            height: 40px;
+            transition: transform 0.3s ease, filter 0.3s ease;
+            cursor: pointer;
+        }
+
+        .rating-icons img:hover {
+            transform: scale(1.2);
+        }
+
+        .rating-icons img.selected {
+            transform: scale(1.2);
+        }
+
+        .rating-icons img[alt="bad"]:hover,
+        .rating-icons img[alt="bad"].selected {
+            filter: brightness(0) saturate(100%) invert(21%) sepia(99%) saturate(7466%) hue-rotate(358deg) brightness(90%) contrast(121%);
+        }
+
+        .rating-icons img[alt="mid"]:hover,
+        .rating-icons img[alt="mid"].selected {
+            filter: brightness(0) saturate(100%) invert(92%) sepia(53%) saturate(735%) hue-rotate(358deg) brightness(97%) contrast(96%);
+        }
+
+        .rating-icons img[alt="happy"]:hover,
+        .rating-icons img[alt="happy"].selected {
+            filter: brightness(0) saturate(100%) invert(72%) sepia(99%) saturate(447%) hue-rotate(91deg) brightness(91%) contrast(92%);
+        }
+
+        button {
+            margin-top: 10px;
+            background-color: #d2b48c;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        button:hover {
+            background-color: #bfa77f;
+        }
+
+        #sentimentResult {
+            margin-top: 15px;
+            font-weight: bold;
+            font-size: 22px;
+            color: #333;
+            text-align: center;
+        }
+
+        #charCount {
+            text-align: right;
+            color: #666;
+            font-size: 14px;
+        }
+
+        #scoreDisplay {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 20px;
+            font-weight: bold;
+            color: #444;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Website Evaluation Tool</h2>
+
+        <form id="evaluationForm">
+            <label for="urlInput">Website URL or Name:</label>
+            <input type="text" id="urlInput" name="urlInput" required />
+            <button type="button" onclick="validateURL()">Check URL</button>
+
+            <h3>How do you feel about that website?</h3>
+            <div class="rating-icons">
+                <img src="frown.svg" alt="bad" />
+                <img src="meh.svg" alt="mid" />
+                <img src="smile.svg" alt="happy" />
+            </div>
+
+            <label>Star Rating:</label>
+            <div class="rating">
+                <input type="radio" id="star5" name="rating" value="5" />
+                <label for="star5">★</label>
+
+                <input type="radio" id="star4" name="rating" value="4" />
+                <label for="star4">★</label>
+
+                <input type="radio" id="star3" name="rating" value="3" />
+                <label for="star3">★</label>
+
+                <input type="radio" id="star2" name="rating" value="2" />
+                <label for="star2">★</label>
+
+                <input type="radio" id="star1" name="rating" value="1" />
+                <label for="star1">★</label>
+            </div>
+
+            <h3>Leave a Comment (Optional)</h3>
+            <textarea id="commentBox" name="commentBox" rows="4" placeholder="Write your comment here..." maxlength="300"></textarea>
+            <p id="charCount">300 characters remaining</p>
+
+            <button type="submit">Submit Review</button>
+        </form>
+
+        <div id="sentimentResult">Sentiment: Neutral</div>
+        <div id="scoreDisplay"></div> </div>
+
+    <script>
+     function validateEmail(email) {
+    const allowedDomains = ["@spartans.nsu.edu", "@gmail.com", "@yahoo.com"];
+    return allowedDomains.some(domain => email.endsWith(domain));
+}
+
+function validateAuthFields(event) {
+    const username = document.getElementById("username").value.trim();
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+    const action = event.target.textContent.toLowerCase(); // "sign up" or "log in"
+
+    if (!username || !email || !password) {
+        alert("Please fill in all fields.");
+        return false;
+    }
+
+    if (!validateEmail(email)) {
+        alert("Email must end with @spartans.nsu.edu, @gmail.com, or @yahoo.com.");
+        return false;
+    }
+    if (password.length < 6) {
+        alert("Password must be at least 6 characters long.");
+        return false;
+    }
+
+    if (action.includes("sign up")) {
+        alert("Success! You have signed up.");
+    } else if (action.includes("log in")) {
+        alert("Welcome back! You are now logged in.");
+    }
+
+    // Clear input fields
+    document.getElementById("username").value = "";
+    document.getElementById("email").value = "";
+    document.getElementById("password").value = "";
+
+    return true;
+}
+
+// Attach listener to both buttons
+document.querySelectorAll(".auth-buttons button").forEach(button => {
+    button.addEventListener("click", validateAuthFields);
+});
+
+        let emojiValue = 0;
+        let starValue = 0;
+
+        function isValidURL(string) {
+            let pattern = new RegExp('^(https?:\\/\\/)?' +
+                '((([a-zA-Z0-9\\-]+\\.)+[a-zA-Z]{2,})|' +
+                'localhost|' +
+                '\\d{1,3}(\\.\\d{1,3}){3})' +
+                '(\\:\\d+)?(\\/[-a-zA-Z0-9@:%._\\+~#=]*)*' +
+                '(\\#[a-zA-Z0-9@:%._\\+~#=]*)?$', 'i');
+            return pattern.test(string);
+        }
+
+        function validateURL() {
+            let url = document.getElementById("urlInput").value.trim();
+            if (isValidURL(url)) {
+                alert("This URL is valid");
+            } else {
+                alert("Please enter a valid URL");
+            }
+        }
+
+        document.getElementById("evaluationForm").addEventListener("submit", function(e) {
+            e.preventDefault();
+            let url = document.getElementById("urlInput").value.trim();
+            if (!isValidURL(url)) {
+                alert("Please enter a valid URL before submitting.");
+                return;
+            }
+            alert("Review submitted successfully!");
+        });
+
+        document.querySelectorAll('.rating-icons img').forEach(img => {
+            img.addEventListener('click', function () {
+                document.querySelectorAll('.rating-icons img').forEach(i => i.classList.remove('selected'));
+                this.classList.add('selected');
+
+                switch (this.alt) {
+                    case "bad":
+                        emojiValue = 1.0;
+                        break;
+                    case "mid":
+                        emojiValue = 3.0;
+                        break;
+                    case "happy":
+                        emojiValue = 5.0;
+                        break;
+                }
+
+                updateScore(); // ✅ Will only show if URL is valid
+            });
+        });
+
+        const starInputs = document.querySelectorAll('input[name="rating"]');
+        starInputs.forEach(input => {
+            input.addEventListener("change", function () {
+                starValue = parseInt(this.value);
+                updateScore(); // ✅ Will only show if URL is valid
+            });
+        });
+
+        function updateScore() {
+            const scoreDisplay = document.getElementById("scoreDisplay");
+            const url = document.getElementById("urlInput").value.trim();
+
+            if (emojiValue > 0 && starValue > 0 && isValidURL(url)) {
+                const finalScore = emojiValue + starValue;
+                scoreDisplay.innerText = `Final Score: ${finalScore}`;
+            } else {
+                scoreDisplay.innerText = "Select a valid URL, emoji and star to see score.";
+            }
+        }
+
+        document.getElementById("commentBox").addEventListener("input", function () {
+            let maxLength = 300;
+            let currentLength = this.value.length;
+            let remaining = maxLength - currentLength;
+            document.getElementById("charCount").textContent = remaining + " characters remaining";
+
+            analyzeSentiment(this.value);
+        });
+
+        function analyzeSentiment(text) {
+            let lower = text.toLowerCase();
+            let positiveWords = ['good', 'great', 'excellent', 'amazing', 'love', 'fantastic', 'happy', 'wonderful',
+  'superb',
+  'outstanding',
+  'brilliant',
+  'terrific',
+  'awesome',
+  'lovely',
+  'delightful',
+  'enjoy',
+  'pleased',
+  'satisfied',
+  'content',
+  'joyful',
+  'glad',
+  'thrilled',
+  'excited',
+  'positive',
+  'favorable',
+  'nice',
+  'best',
+  'finest',
+  'perfect',
+  'ideal',
+  'super',
+  'remarkable',
+  'splendid',
+  'vibrant',
+  'smooth',
+  'efficient',
+  'user-friendly',
+  'intuitive',
+  'helpful',
+  'supportive',
+  'reliable',
+  'effective',
+  'innovative',
+  'quality',
+  'valuable',
+  'useful',
+  'easy',
+  'simple',
+  'clear',
+  'fast',
+  'quick',
+  'responsive',
+  'secure',
+  'trustworthy'];
+            let negativeWords = ['bad', 'terrible', 'awful', 'hate', 'worst', 'disappointing', 'sad', 'horrible', 'atrocious','dreadful',
+  'abysmal',
+  'vile',
+  'disgusting',
+  'repulsive',
+  'offensive',
+  'appalling',
+  'outrageous',
+  'detestable',
+  'loathsome',
+  'miserable',
+  'agony',
+  'suffering',
+  'ruined',
+  'destroyed',
+  'failed',
+  'useless',
+  'worthless',
+  'poor',
+  'inferior',
+  'subpar',
+  'mediocre',
+  'unpleasant',
+  'annoying',
+  'irritating',
+  'frustrating',
+  'bothersome',
+  'worrisome',
+  'alarming',
+  'upsetting',
+  'depressing',
+  'sucks',
+  'gloomy',
+  'dismal',
+  'inadequate',
+  'lacking',
+  'faulty',
+  'problematic',
+  'dislike',
+  'unimpressed',
+  'concerned',
+  'iffy',
+  'sketchy',
+  'flawed',
+  'deficient',
+  'limited',
+  'restrictive',
+  'complex', 
+  'slow',    
+  'buggy',
+  'unreliable' ];
+
+            let score = 0;
+            positiveWords.forEach(word => {
+                if (lower.includes(word)) score++;
+            });
+            negativeWords.forEach(word => {
+                if (lower.includes(word)) score--;
+            });
+
+            let sentiment = "Neutral";
+            if (score > 0) sentiment = "Positive";
+            else if (score < 0) sentiment = "Negative";
+
+            const sentimentDisplay = document.getElementById('sentimentResult');
+            sentimentDisplay.textContent = `Sentiment: ${sentiment}`;
+            sentimentDisplay.style.color =
+                sentiment === "Positive" ? "green" :
+                sentiment === "Negative" ? "red" :
+                "gray";
+        }
+
+
+    </script>
+</body>
+</html>

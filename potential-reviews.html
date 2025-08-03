@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Reviews</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f5f5dc;
+            text-align: center;
+            padding: 50px;
+            margin: 0;
+            color: #333;
+        }
+
+        .container {
+            background: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            display: inline-block;
+            margin-top: 20px;
+            max-width: 600px;
+            width: 100%;
+            line-height: 1.4;
+            margin-bottom: 30px;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 1.8em;
+            color: #8b7355;
+            margin-bottom: 10px;
+        }
+
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            align-items: center;
+        }
+
+        select {
+            padding: 5px 10px;
+            font-size: 1em;
+            border-radius: 5px;
+        }
+
+        .review-box {
+            background-color: #fafafa;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: inset 0px 0px 8px rgba(0, 0, 0, 0.05);
+            margin-bottom: 15px;
+            font-size: 1em;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .title-emoji {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .emoji-rating {
+            font-size: 1.5em;
+        }
+
+        .comment {
+            text-align: center;
+            font-size: 1.1em;
+            margin: 20px 0;
+        }
+
+        .sentiment,
+        .star-rating {
+            font-weight: bold;
+        }
+
+        .sentiment {
+            position: absolute;
+            bottom: 10px;
+            left: 20px;
+            font-size: 0.9em;
+            color: #8b7355;
+        }
+
+        .star-rating {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 1.4em;
+            color: gold;
+        }
+
+        .sentiment.good {
+            color: green;
+        }
+
+        .sentiment.bad {
+            color: red;
+        }
+
+        .sentiment.neutral {
+            color: gray;
+        }
+
+        #load-more {
+            font-size: 2em;
+            background-color: #8b7355;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        #load-more:hover {
+            background-color: #a68b68;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h2 id="review-title">Reviews for espn.com</h2>
+        <div class="filter-section">
+            <label for="siteSelect"><strong>Choose Site:</strong></label>
+            <select id="siteSelect">
+                <option value="espn.com">espn.com</option>
+                <option value="barnesandnoble.com">barnesandnoble.com</option>
+                <option value="etsy.com">etsy.com</option>
+            </select>
+
+            <label for="sentimentSelect"><strong>Filter Sentiment:</strong></label>
+            <select id="sentimentSelect">
+                <option value="all">All</option>
+                <option value="good">Good</option>
+                <option value="neutral">Neutral</option>
+                <option value="bad">Bad</option>
+            </select>
+        </div>
+
+        <div id="reviews"></div>
+        <button id="load-more">+</button>
+    </div>
+
+    <script>
+        const reviewsBySite = {
+    "espn.com": [
+        // Staggered Good, Bad, Neutral
+        { title: "Jonah2021", emoji: "🙂", comment: "Pretty decent sports coverage! I especially enjoy the in-depth analysis articles.", sentiment: "good", stars: "4 Stars" },
+        { title: "Anonymous", emoji: "☹️", comment: "Too many intrusive ads that really disrupt the browsing experience. Not my favorite website for that reason.", sentiment: "bad", stars: "2 Stars" },
+        { title: "ByteWhisper", emoji: "🙂", comment: "Enjoyable content overall, but there's a bit too much pop-up content that gets in the way of reading.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "CodeStream", emoji: "😀", comment: "Loved the quick highlights and the near real-time live scores! Makes it easy to follow multiple games at once.", sentiment: "good", stars: "5 Stars" },
+        { title: "Anonymous", emoji: "☹️", comment: "The mobile app lags quite often, especially during live events. It can be very frustrating when trying to follow the action.", sentiment: "bad", stars: "2 Stars" },
+        { title: "Anonymous", emoji: "😐", comment: "The scores sometimes update a little late, which can be annoying if you're trying to get immediate results.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Fan123", emoji: "😀", comment: "My absolute go-to site for all things sports. The layout is clean and easy to navigate.", sentiment: "good", stars: "4 Stars" },
+        { title: "Anonymous", emoji: "☹️", comment: "Frequently encounter video playback errors, which is a shame because I enjoy watching the game recaps.", sentiment: "bad", stars: "2 Stars" },
+        { title: "MobileUser", emoji: "😐", comment: "The website works fine on desktop, but the mobile experience could be improved.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "SolarFlare", emoji: "😀", comment: "Covers all of my favorite games and leagues, which is exactly what I'm looking for in a sports website!", sentiment: "good", stars: "5 Stars" },
+        { title: "AdHater", emoji: "😠", comment: "The number of video ads before every highlight is ridiculous! Makes the site almost unusable.", sentiment: "bad", stars: "1 Star" },
+        { title: "DesignDilemma", emoji: "😐", comment: "The website design feels a bit outdated.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Old_Timer562", emoji: "🙂", comment: "Been using this site for years and it's generally reliable for getting the sports information I need.", sentiment: "good", stars: "4 Stars" },
+        { title: "BufferBoy", emoji: "😠", comment: "Live streams often buffer and interrupt the viewing experience.", sentiment: "bad", stars: "1 Star" },
+        { title: "InformationOverload", emoji: "😐", comment: "There's so much information on each page it can be overwhelming.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "SportsGuru", emoji: "😀", comment: "Excellent analysis and predictions! Really helps understand the game better.", sentiment: "good", stars: "5 Stars" },
+        { title: "NavigationNightmare", emoji: "😠", comment: "The website navigation can be confusing and it's hard to find what I'm looking for.", sentiment: "bad", stars: "2 Stars" },
+        { title: "SearchStruggles", emoji: "😐", comment: "The search functionality isn't always very accurate.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "StatsFan", emoji: "😀", comment: "Love the detailed statistics they provide for each game and player.", sentiment: "good", stars: "5 Stars" },
+        { title: "CommentSectionChaos", emoji: "😠", comment: "The comment sections are often filled with toxic and irrelevant posts.", sentiment: "bad", stars: "1 Star" },
+        { title: "AccountIssues", emoji: "😐", comment: "Had a minor issue with my account settings.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "HighlightReel", emoji: "😀", comment: "The video highlights are always high quality and load quickly.", sentiment: "good", stars: "4 Stars" },
+        { title: "PaywallPanic", emoji: "😠", comment: "More and more content is being put behind a paywall, which is disappointing.", sentiment: "bad", stars: "2 Stars" },
+        { title: "ContentVariety", emoji: "😐", comment: "They cover a wide range of sports, which is okay.", sentiment: "neutral", stars: "3 Stars" }
+    ],
+    "barnesandnoble.com": [
+        // Staggered Good, Bad, Neutral
+        { title: "Book Lover", emoji: "😀", comment: "Amazing selection of books! I can always find something new and interesting to read here.", sentiment: "good", stars: "5 Stars" },
+        { title: "SamanthaJ47", emoji: "☹️", comment: "Unfortunately, I couldn't find the specific book I was looking for, which was quite frustrating.", sentiment: "bad", stars: "2 Stars" },
+        { title: "ReaderX567", emoji: "😐", comment: "The shipping took a little longer than I expected, which was a bit disappointing.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Anonymous", emoji: "🙂", comment: "Easy to use website with lots of different categories to browse, making it simple to discover new authors and genres.", sentiment: "good", stars: "4 Stars" },
+        { title: "Anonymous", emoji: "☹️", comment: "The website occasionally has issues with loading product images, which makes browsing less appealing.", sentiment: "bad", stars: "2 Stars" },
+        { title: "BookCity37", emoji: "🙂", comment: "Enjoyable browsing experience, but there are a few too many pop-up advertisements that can be distracting.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Bookworm2020", emoji: "😀", comment: "Great deals on classic literature! I've been able to build my collection without breaking the bank.", sentiment: "good", stars: "5 Stars" },
+        { title: "SlowDelivery", emoji: "😠", comment: "My order took an extremely long time to arrive. Poor shipping service.", sentiment: "bad", stars: "1 Star" },
+        { title: "OldFashion89", emoji: "😐", comment: "The recommendations for new books aren't always relevant to my reading tastes.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "OnlineShopper", emoji: "🙂", comment: "My go-to site for ordering books online. The checkout process is straightforward and secure.", sentiment: "good", stars: "4 Stars" },
+        { title: "DamagedBook", emoji: "😠", comment: "Received my book with a damaged cover. Very disappointing.", sentiment: "bad", stars: "1 Star" },
+        { title: "LimitedSelection", emoji: "😐", comment: "The selection in some niche categories could be better.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "SpeedReader", emoji: "😀", comment: "Fast shipping on my recent order! I received my books much quicker than anticipated.", sentiment: "good", stars: "5 Stars" },
+        { title: "PoorSearch", emoji: "😠", comment: "The website's search function is terrible. Hard to find specific titles.", sentiment: "bad", stars: "2 Stars" },
+        { title: "WebsiteGlitches", emoji: "😐", comment: "Experienced a few minor glitches while browsing the site.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "PriceHunter", emoji: "🙂", comment: "Often find competitive prices compared to other online bookstores.", sentiment: "good", stars: "4 Stars" },
+        { title: "NoStock", emoji: "😠", comment: "Many books I want are frequently out of stock.", sentiment: "bad", stars: "1 Star" },
+        { title: "AccountManagement", emoji: "😐", comment: "Managing my account details could be more intuitive.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "TechSavvyReader", emoji: "😀", comment: "The ebook reader integration is seamless and works very well on my tablet.", sentiment: "good", stars: "5 Stars" },
+        { title: "DifficultReturn", emoji: "😠", comment: "The return process was complicated and inconvenient.", sentiment: "bad", stars: "2 Stars" },
+        { title: "EmailSpam", emoji: "😐", comment: "Receive a lot of promotional emails.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "CustomerCare", emoji: "🙂", comment: "Had a question about my order and their customer service was very helpful and responsive.", sentiment: "good", stars: "4 Stars" },
+        { title: "HighPrices", emoji: "😠", comment: "Some of the book prices are quite high compared to other retailers.", sentiment: "bad", stars: "2 Stars" },
+        { title: "LayoutOkay", emoji: "😐", comment: "The website layout is generally okay.", sentiment: "neutral", stars: "3 Stars" }
+    ],
+    "etsy.com": [
+        // Staggered Good, Bad, Neutral
+        { title: "Craft Fan", emoji: "😀", comment: "The handmade items on this site are truly top notch! You can find so many unique and well-crafted goods.", sentiment: "good", stars: "5 Stars" },
+        { title: "TheWorld289", emoji: "☹️", comment: "My item unfortunately arrived broken, and the seller's response to my issue was not very helpful.", sentiment: "bad", stars: "1 Star" },
+        { title: "Anonymous", emoji: "😐", comment: "While the items are lovely, some sellers can be a bit slow in processing and shipping orders.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Review 3", emoji: "🙂", comment: "Beautiful and unique items, I will definitely be buying from Etsy again in the future. So many talented creators!", sentiment: "good", stars: "4 Stars" },
+        { title: "BuyerBeware", emoji: "😠", comment: "Had a really negative experience with one seller who was unresponsive and the item was not as described.", sentiment: "bad", stars: "1 Star" },
+        { title: "Anonymous", emoji: "😐", comment: "The search functionality could be improved; sometimes it's hard to find exactly what I'm looking for.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Handmade Hero", emoji: "😀", comment: "Amazing website for finding unique and thoughtful gift ideas for all occasions. I always find something special here.", sentiment: "good", stars: "5 Stars" },
+        { title: "ScamAlert", emoji: "😠", comment: "Felt like I was scammed by a seller. The item was nothing like the pictures.", sentiment: "bad", stars: "1 Star" },
+        { title: "AverageFinds", emoji: "😐", comment: "Some items are great, others are just average.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "Etsy Addict", emoji: "🙂", comment: "I keep coming back to Etsy because there's always something new and interesting to discover. It's a great platform for supporting small businesses.", sentiment: "good", stars: "4 Stars" },
+        { title: "PoorQuality", emoji: "😠", comment: "The quality of the item I received was very poor and not worth the price.", sentiment: "bad", stars: "1 Star" },
+        { title: "PriceyForHandmade", emoji: "😐", comment: "Some of the prices seem a bit high for handmade goods.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "ArtLover", emoji: "😀", comment: "Found some truly unique and beautiful art pieces from independent artists. So glad I discovered this site!", sentiment: "good", stars: "5 Stars" },
+        { title: "LongWait", emoji: "😠", comment: "Waited an extremely long time for my order to arrive.", sentiment: "bad", stars: "2 Stars" },
+        { title: "SellerVariability", emoji: "😐", comment: "The quality and service really depend on the individual seller.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "CraftyGal", emoji: "😀", comment: "Love the ability to directly communicate with the sellers. It makes the whole buying process more personal.", sentiment: "good", stars: "4 Stars" },
+        { title: "NoRefund", emoji: "😠", comment: "The seller refused to issue a refund for a damaged item.", sentiment: "bad", stars: "1 Star" },
+        { title: "WebsiteLag", emoji: "😐", comment: "The website can be a little slow to load at times.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "VintageHunter", emoji: "🙂", comment: "Great place to find unique vintage items that you can't find anywhere else.", sentiment: "good", stars: "4 Stars" },
+        { title: "MisleadingPics", emoji: "😠", comment: "The product photos were very misleading.", sentiment: "bad", stars: "2 Stars" },
+        { title: "WishlistIssues", emoji: "😐", comment: "Had a minor issue with saving items to my wishlist.", sentiment: "neutral", stars: "3 Stars" },
+        { title: "GiftFinder", emoji: "😀", comment: "Always my first stop when I need to find a special and personalized gift.", sentiment: "good", stars: "5 Stars" },
+        { title: "CommunicationFail", emoji: "😠", comment: "The seller was very difficult to communicate with.", sentiment: "bad", stars: "2 Stars" },
+        { title: "NotificationWoes", emoji: "😐", comment: "The notification system isn't always very reliable.", sentiment: "neutral", stars: "3 Stars" }
+    ]
+};
+
+let displayed = 0;
+        const initialDisplay = 4;
+        const batchSize = 2;
+        let currentSite = "espn.com";
+        let currentSentimentFilter = "all";
+        const maxReviewsToShow = 22; // Changed this line
+
+        function updateTitle() {
+            document.getElementById("review-title").textContent = `Reviews for ${currentSite}`;
+        }
+
+        function loadReviews(reset = false) {
+            const container = document.getElementById("reviews");
+            const reviews = reviewsBySite[currentSite];
+            const filteredReviews = reviews.filter(review => {
+                return currentSentimentFilter === "all" || review.sentiment === currentSentimentFilter;
+            });
+
+            if (reset) {
+                container.innerHTML = "";
+                displayed = 0;
+            }
+
+            const toDisplay = reset ? initialDisplay : batchSize;
+            const end = Math.min(displayed + toDisplay, Math.min(filteredReviews.length, maxReviewsToShow)); // Updated max here
+
+            for (let i = displayed; i < end; i++) {
+                const r = filteredReviews[i];
+                const div = document.createElement("div");
+                div.className = "review-box";
+                div.innerHTML = `
+                    <div class="title-emoji">
+                        <h3>${r.title}</h3>
+                        <div class="emoji-rating">${r.emoji}</div>
+                    </div>
+                    <div class="comment">${r.comment}</div>
+                    <div class="sentiment ${r.sentiment}">Sentiment: ${r.sentiment.charAt(0).toUpperCase() + r.sentiment.slice(1)}</div>
+                    <div class="star-rating">${"★".repeat(parseInt(r.stars))}${"☆".repeat(5 - parseInt(r.stars))}</div>
+                `;
+                container.appendChild(div);
+            }
+
+            displayed = end;
+
+            const loadMoreBtn = document.getElementById("load-more");
+            if (displayed >= Math.min(filteredReviews.length, maxReviewsToShow)) { // Updated max here
+                loadMoreBtn.style.display = "none";
+            } else {
+                loadMoreBtn.style.display = "inline-block";
+            }
+        }
+
+        document.getElementById("load-more").addEventListener("click", () => loadReviews(false));
+
+        document.getElementById("siteSelect").addEventListener("change", (e) => {
+            currentSite = e.target.value;
+            updateTitle();
+            loadReviews(true);
+        });
+
+        document.getElementById("sentimentSelect").addEventListener("change", (e) => {
+            currentSentimentFilter = e.target.value;
+            loadReviews(true);
+        });
+
+        window.onload = () => {
+            updateTitle();
+            loadReviews(true);
+        };
+    </script>
+</body>
+
+</html>
